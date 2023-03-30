@@ -8,4 +8,5 @@ setup:
 	rustup target add wasm32-unknown-unknown
 	cargo install trunk
 
-
+test:
+	cargo test --verbose

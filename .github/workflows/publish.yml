@@ -2,10 +2,8 @@ name: Publish to S3
 
 on:
   push:
-    paths: 
-      - dist/*
     branches:
-    - main
+      - main
 
 jobs:
   deploy:
@@ -17,8 +15,18 @@ jobs:
       with:
         access_token: ${{ github.token }}
 
-    - name: Checkout master
-      uses: actions/checkout@master
+    - name: Setup Rust
+      run: make setup
+
+    - name: Checkout
+      uses: actions/checkout@v3
+      run: git checkout main
+
+    - name: Build
+      run: make
+
+    - name: Run tests
+      run: make test
 
     - name: Upload to S3
       uses: jakejarvis/s3-sync-action@master

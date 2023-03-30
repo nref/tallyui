@@ -15,11 +15,11 @@ jobs:
       with:
         access_token: ${{ github.token }}
 
+    - name: Checkout repo
+      uses: actions/checkout@v3
+
     - name: Setup Rust
       run: make setup
-
-    - name: Checkout
-      uses: actions/checkout@v3
 
     - name: Build
       run: make

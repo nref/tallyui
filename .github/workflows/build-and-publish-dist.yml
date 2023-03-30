@@ -4,8 +4,9 @@ name: Build Dist and Publish to S3
 
 on:
   push:
-    paths-ignore:
-       - 'dist/**'
+    paths:
+       - '**'
+       - '!dist/**'
     branches:
       - main
 

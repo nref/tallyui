@@ -1,0 +1,43 @@
+# This yml GitHub action runs only when the dist folder changes.
+# It does not build the dist folder; it merely uploads it to S3.
+name: Publish dist to S3
+
+on:
+  push:
+    paths:
+       - 'dist/**'
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Cancel Previous Runs
+      uses: styfle/cancel-workflow-action@0.5.0
+      with:
+        access_token: ${{ github.token }}
+
+    - name: Checkout repo
+      uses: actions/checkout@v3
+
+    - name: Upload to S3
+      uses: jakejarvis/s3-sync-action@master
+      with:
+        args: --acl public-read --follow-symlinks
+      env:
+        AWS_S3_BUCKET: ${{ secrets.TALLY_AWS_S3_BUCKET }}
+        AWS_ACCESS_KEY_ID: ${{ secrets.TALLY_AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.TALLY_AWS_SECRET_ACCESS_KEY }}
+        AWS_REGION: 'us-east-1'   # optional: defaults to us-east-1
+        SOURCE_DIR: './dist'      # optional: defaults to entire repository
+
+    - name: Invalidate Cloudfront cache
+      uses: chetan/invalidate-cloudfront-action@master
+      env:
+        DISTRIBUTION: ${{ secrets.TALLY_AWS_CLOUDFRONT_DISTRIBUTION_ID }}
+        PATHS: '/*'
+        AWS_REGION: 'us-east-1'
+        AWS_ACCESS_KEY_ID: ${{ secrets.TALLY_AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.TALLY_AWS_SECRET_ACCESS_KEY }}

@@ -1,7 +1,11 @@
-name: Publish to S3
+# This GitHub action builds the dist folder and publishes it to S3.
+# Since it is a Rust build it is quite slow.
+name: Build Dist and Publish to S3
 
 on:
   push:
+    paths-ignore:
+       - 'dist/**'
     branches:
       - main
 

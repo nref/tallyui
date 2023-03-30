@@ -107,12 +107,12 @@ impl Component for TallyTableRow {
                 <td class={if is_total_row { "total-row" } else { "" }}>{count}</td>
                 <td>
                     if !is_total_row {
-                        <button class="button-increment" onclick={on_incr_clicked}>{ "+1" }</button>
+                        <button class="button-increment" onclick={on_incr_clicked}>{ "↑" }</button>
                     }
                 </td>
                 <td>
                     if !is_total_row {
-                        <button class="button-decrement" onclick={on_decr_clicked}>{ "-1" }</button>
+                        <button class="button-decrement" onclick={on_decr_clicked}>{ "↓" }</button>
                     }
                 </td>
             </tr>

@@ -63,11 +63,14 @@ button:active {
   padding: 0;
 }
 
-.button-reset {
-  background-color: #DA2533;
-  color: #000000;
+.button-outside-table {
   margin-top: 50px;
   margin-bottom: 50px;
+}
+
+.button-reset-table {
+  background-color: #DA2533;
+  color: #000000;
   font-weight: bold;
 }
 

@@ -130,16 +130,12 @@ impl Component for TallyTable {
                         editing={false}/>
                 </table>
 
-                <table>
-                    <tr>
-                      <td>
-                        <button class="button-edit" onclick={link.callback(|_| Self::Message::Edit)}>{"🖉"}</button>
-                      </td>
-                      <td>
-                        <button class="button-reset" onclick={link.callback(|_| Self::Message::Reset)}>{"⟳"}</button>
-                      </td>
-                    </tr>
-                </table>
+                <button class="button-outside-table" onclick={link.callback(|_| Self::Message::Edit)}>
+                    {if self.editing { "Stop Editing" } else { "Edit" }}
+                </button>
+                <button class="button-reset-table" onclick={link.callback(|_| Self::Message::Reset)}>
+                    {"Reset"}
+                </button>
             </>
         }
     }

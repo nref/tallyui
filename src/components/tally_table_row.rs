@@ -26,15 +26,16 @@ pub enum TallyTableRowMessage {
 
 fn get_value_from_keyboard_event(e: KeyboardEvent) -> String {
     let event: Event = e.dyn_into().unwrap_throw();
-    let event_target = event.target().unwrap_throw();
-    let target: HtmlInputElement = event_target.dyn_into().unwrap_throw();
-    web_sys::console::log_1(&target.value().into());
-    target.value()
+    get_value_from_event(event)
 }
 
 fn get_value_from_input_event(e: InputEvent) -> String {
     let event: Event = e.dyn_into().unwrap_throw();
-    let event_target = event.target().unwrap_throw();
+    get_value_from_event(event)
+}
+
+fn get_value_from_event(e: Event) -> String {
+    let event_target = e.target().unwrap_throw();
     let target: HtmlInputElement = event_target.dyn_into().unwrap_throw();
     web_sys::console::log_1(&target.value().into());
     target.value()
@@ -44,10 +45,10 @@ impl Component for TallyTableRow {
     type Message = TallyTableRowMessage;
     type Properties = TallyTableRowProps;
 
-    fn create(_ctx: &Context<Self>) -> Self {
+    fn create(ctx: &Context<Self>) -> Self {
         Self {
             renaming: false,
-            name: "".to_string(),
+            name: ctx.props().name.to_string(),
         }
     }
 
@@ -73,7 +74,7 @@ impl Component for TallyTableRow {
             .unwrap_or(Callback::from(|_| {}));
         let count = props.count;
         let is_total_row = props.is_total_row.unwrap_or(false);
-        let name_attr = props.name.clone();
+        let name_attr = AttrValue::from(self.name.clone());
         let name_attr2 = name_attr.clone();
         let name_attr3 = name_attr.clone();
         let name_str = name_attr.to_string();
@@ -84,22 +85,24 @@ impl Component for TallyTableRow {
             "not-editing"
         };
 
+        let default_callback = Callback::from(|_| {});
+
         let on_incr_clicked = props
             .on_incr_clicked
             .clone()
-            .unwrap_or(Callback::from(|_| {}))
+            .unwrap_or(default_callback.clone())
             .reform(move |_| name_attr.clone());
 
         let on_decr_clicked = props
             .on_decr_clicked
             .clone()
-            .unwrap_or(Callback::from(|_| {}))
+            .unwrap_or(default_callback.clone())
             .reform(move |_| name_attr2.clone());
 
         let on_remove_clicked = props
             .on_remove_clicked
             .clone()
-            .unwrap_or(Callback::from(|_| {}))
+            .unwrap_or(default_callback.clone())
             .reform(move |_| name_attr3.clone());
 
         let on_name_clicked = ctx.link().callback(|_| Self::Message::Rename);
@@ -126,7 +129,7 @@ impl Component for TallyTableRow {
                     }
                 </td>
                 if !is_total_row && self.renaming {
-                    <td onclick={on_name_clicked}><input type="text" value={name_str.clone()} {oninput} {onkeypress}/></td>
+                    <td><input type="text" value={name_str.clone()} {oninput} {onkeypress}/></td>
                 } else
                 {
                     <td class={if is_total_row { "total-row" } else { "" }} onclick={on_name_clicked}>{name_str.clone()}</td>

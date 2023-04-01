@@ -3,6 +3,7 @@ use yew::prelude::*;
 use crate::components::tally_table_row::TallyTableRow;
 use crate::data::table_repo::TableRepo;
 use crate::model::table::Table;
+use gloo_console::log;
 
 pub enum TallyMessage {
     Increment(AttrValue),
@@ -63,7 +64,12 @@ impl Component for TallyTable {
                 true
             }
             Self::Message::RemoveRow(name) => {
+                log!(format!("Removing row {}", &name.to_string()));
                 self.table.rows.remove(&name.to_string());
+                log!("Rows:");
+                for (k, v) in self.table.rows.iter() {
+                    log!(format!("  {}", k));
+                }
                 true
             }
             Self::Message::AddRow => {

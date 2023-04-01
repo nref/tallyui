@@ -15,6 +15,12 @@ tr {
 td {
 }
 
+.not-editing {
+  visibility: collapse;
+  width: 0px;
+  height: 0px;
+}
+
 .total-row {
   font-weight: bold;
   background-color: #fff000
@@ -53,7 +59,11 @@ button:active {
   background-color: #fff000;
 }
 
-.button-dangerous {
+.button-edit-row {
+  padding: 0;
+}
+
+.button-reset {
   background-color: #DA2533;
   color: #000000;
   margin-top: 50px;
@@ -61,10 +71,10 @@ button:active {
   font-weight: bold;
 }
 
-.button-dangerous:hover {
+.button-reset:hover {
   background-color: #E2535E;
 }
 
-.button-dangerous:active {
+.button-reset:active {
   background-color: #f0a8ae;
 }

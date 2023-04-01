@@ -7,12 +7,17 @@ use crate::model::table::Table;
 pub enum TallyMessage {
     Increment(AttrValue),
     Decrement(AttrValue),
-    Clear,
+    Reset,
+    Edit,
+    RemoveRow(AttrValue),
+    AddRow,
 }
 
 pub struct TallyTable {
     pub table: Table,
     pub repo: TableRepo,
+
+    editing: bool,
 }
 
 impl Component for TallyTable {
@@ -22,6 +27,7 @@ impl Component for TallyTable {
     fn create(_ctx: &Context<Self>) -> Self {
         let repo = TableRepo {};
         Self {
+            editing: false,
             table: repo.get_table(),
             repo,
         }
@@ -45,15 +51,32 @@ impl Component for TallyTable {
                 }
                 true
             }
-            Self::Message::Clear => {
-                // Wipe the categories too:
-                // handle_clear();
-                // self.table.rows = HashMap::new();
-
+            Self::Message::Reset => {
                 for (_key, value) in self.table.rows.iter_mut() {
                     *value = 0;
                 }
                 self.repo.save_table(&self.table);
+                true
+            }
+            Self::Message::Edit => {
+                self.editing = !self.editing;
+                true
+            }
+            Self::Message::RemoveRow(name) => {
+                self.table.rows.remove(&name.to_string());
+                true
+            }
+            Self::Message::AddRow => {
+                let name = "New category".to_string();
+                let mut name2 = name.to_string();
+
+                let mut i = 2;
+                while self.table.rows.contains_key(&name2) {
+                    name2 = format!("{} {}", name, i);
+                    i += 1;
+                }
+
+                self.table.rows.insert(name2, 0);
                 true
             }
         }
@@ -61,6 +84,13 @@ impl Component for TallyTable {
 
     fn view(&self, ctx: &Context<Self>) -> Html {
         let sum = self.table.rows.values().fold(0, |acc, &x| acc + x);
+        let link = ctx.link();
+
+        let editing_class = if self.editing {
+            "editing"
+        } else {
+            "not-editing"
+        };
 
         html! {
 
@@ -75,36 +105,41 @@ impl Component for TallyTable {
                     </tr>
                     {
                         self.table.rows.iter().map(|(name, count)| {
-                            let on_incr_clicked = ctx.link().callback(Self::Message::Increment);
-                            let on_decr_clicked = ctx.link().callback(Self::Message::Decrement);
-
                             html! {
                                 <TallyTableRow
                                     name={name.clone()}
                                     count={count}
-                                    on_incr_clicked={on_incr_clicked}
-                                    on_decr_clicked={on_decr_clicked} />
+                                    editing={self.editing}
+                                    on_remove_clicked={link.callback(Self::Message::RemoveRow)}
+                                    on_incr_clicked={link.callback(Self::Message::Increment)}
+                                    on_decr_clicked={link.callback(Self::Message::Decrement)} />
                             }
 
                         }).collect::<Html>()
                     }
 
-                    // <tr>
-                    //     <td><button>{"➕"}</button></td>
-                    //     <td><input/></td>
-                    // </tr>
+                    <tr class={editing_class}>
+                        <td><button class="button-edit-row" onclick={link.callback(|_| Self::Message::AddRow)}>{"➕"}</button></td>
+                    </tr>
 
 
                     <TallyTableRow
                         name={"Total"}
                         count={sum}
                         is_total_row={true}
-                        on_incr_clicked={|_| {}}
-                        on_decr_clicked={|_| {}}
-                        />
+                        editing={false}/>
                 </table>
-                <button class="button-dangerous"
-                    onclick={ctx.link().callback(|_| Self::Message::Clear)}>{"Reset"}</button>
+
+                <table>
+                    <tr>
+                      <td>
+                        <button class="button-edit" onclick={link.callback(|_| Self::Message::Edit)}>{"🖉"}</button>
+                      </td>
+                      <td>
+                        <button class="button-reset" onclick={link.callback(|_| Self::Message::Reset)}>{"⟳"}</button>
+                      </td>
+                    </tr>
+                </table>
             </>
         }
     }
